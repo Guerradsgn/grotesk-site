@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <meta name="referrer" content="no-referrer">
+  <title>Entrando no Terminalzin</title>
+  <link rel="icon" href="../icon.png">
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #f6f6f6;
+      --text: #1c1c1c;
+      --secondary: #6b6b6b;
+      --button: #1c1c1c;
+      --on-button: #ffffff;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #141414;
+        --text: #ededed;
+        --secondary: #8f8f8f;
+        --button: #ededed;
+        --on-button: #111111;
+      }
+    }
+    * { box-sizing: border-box; margin: 0; }
+    html, body { height: 100%; }
+    body {
+      display: grid;
+      place-items: center;
+      padding: 24px 16px;
+      background: var(--bg);
+      color: var(--text);
+      font: 15px/1.5 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      text-align: center;
+    }
+    main {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      max-width: 320px;
+      animation: rise 420ms cubic-bezier(.23, 1, .32, 1) both;
+    }
+    img { width: 64px; height: 64px; border-radius: 15px; }
+    h1 { margin-top: 24px; font-size: 19px; font-weight: 600; letter-spacing: -.01em; }
+    p { margin-top: 6px; color: var(--secondary); font-size: 14px; }
+    a.open {
+      margin-top: 28px;
+      display: inline-flex;
+      align-items: center;
+      height: 40px;
+      padding: 0 18px;
+      border-radius: 12px;
+      background: var(--button);
+      color: var(--on-button);
+      font-size: 14px;
+      font-weight: 500;
+      text-decoration: none;
+      transition: opacity 130ms ease, transform 160ms cubic-bezier(.23, 1, .32, 1);
+    }
+    a.open:hover { opacity: .9; }
+    a.open:active { transform: scale(.97); }
+    a.open:focus-visible { outline: 2px solid var(--text); outline-offset: 3px; }
+    @keyframes rise { from { opacity: 0; transform: translateY(8px); } }
+    @media (prefers-reduced-motion: reduce) { main { animation: none; } }
+  </style>
+</head>
+<body>
+  <main>
+    <img src="../icon.png" alt="">
+    <h1 id="title">Pronto, pode voltar ao Terminalzin</h1>
+    <p id="detail">Já pode fechar esta aba.</p>
+    <a class="open" id="open" href="terminalzin://auth">Abrir o Terminalzin</a>
+  </main>
+  <script>
+    // The sign-in comes back here (?code=…, or an error). Hand everything to the
+    // app at terminalzin://auth, then tidy the address bar. Nothing is sent anywhere else.
+    (function () {
+      var params = new URLSearchParams(location.search);
+      new URLSearchParams(location.hash.slice(1)).forEach(function (value, key) {
+        if (!params.has(key)) params.set(key, value);
+      });
+      var query = params.toString();
+      var target = "terminalzin://auth" + (query ? "?" + query : "");
+      document.getElementById("open").href = target;
+      if (params.has("error") || params.has("error_description")) {
+        document.getElementById("title").textContent = "Não deu para entrar";
+        document.getElementById("detail").textContent = "Volte ao Terminalzin e tente de novo.";
+      }
+      history.replaceState(null, "", location.pathname);
+      if (query) location.href = target;
+    })();
+  </script>
+</body>
+</html>
