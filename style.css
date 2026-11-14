@@ -1,117 +1,129 @@
-:root {
-  --bg: #fafafa;
-  --text: #1c1c1c;
-  --secondary: #5e5e5e;
-  --tertiary: #707070;
-  --hairline: rgba(0, 0, 0, 0.08);
-  --card: rgba(0, 0, 0, 0.025);
-  --accent: #2563eb;
+/* Grotesk. One dark world for the whole site, taken from euguerra.com: Geist for text,
+   Geist Serif for names and titles, JetBrains Mono only inside the ASCII clouds at the foot.
+   Fluid Functionalism tokens (dark): ground, text tints, the spring curves, 8px radii. */
+@font-face{font-family:Geist;src:url(fonts/Geist-Latin.woff2) format("woff2");font-weight:100 900;font-display:swap;
+  unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"Geist Fallback";src:local(Arial);ascent-override:95.94%;descent-override:28.16%;line-gap-override:0%;size-adjust:104.76%}
+@font-face{font-family:"Geist Serif";src:url(fonts/GeistSerif-Regular.woff2) format("woff2");font-weight:400;font-display:swap}
+@font-face{font-family:"JetBrains Mono";src:url(fonts/JetBrainsMono.woff2) format("woff2");font-weight:100 800;font-display:swap}
+
+:root{
+  color-scheme:dark;
+  --bg:#111111;
+  --fg:#ffffff;
+  --muted:#a1a1a1;
+  --faint:#5c5c5c;
+  --accent:#6B97FF;
+  --fs-display:28px;--lh-display:34px;
+  --fs-body:14px;--lh-body:20px;
+  --spring:linear(0, .5729, .8966, .9789, .996, 1, 1);
+  --spring-land:linear(0, .3878, .7777, .9458, .9946, 1.0029, 1.0021, 1);
+  --press:cubic-bezier(.23,1,.32,1);
+  --sans:Geist,"Geist Fallback",ui-sans-serif,system-ui,sans-serif;
+  --serif:"Geist Serif",ui-serif,Georgia,serif;
+  --fx-contrast:1.15;   /* screen filter: contrast of everything under it */
+  --fx-grain:.09;       /* screen filter: strength of the film grain */
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #141414;
-    --text: #e8e8e8;
-    --secondary: #a3a3a3;
-    --tertiary: #8a8a8a;
-    --hairline: rgba(255, 255, 255, 0.08);
-    --card: rgba(255, 255, 255, 0.03);
-    --accent: #4c8dff;
-  }
+*{box-sizing:border-box;margin:0;padding:0}
+html{background:var(--bg);-webkit-text-size-adjust:100%;scrollbar-color:#2e2e2e var(--bg)}
+body{
+  display:flex;flex-direction:column;min-height:100svh;
+  background:var(--bg);color:var(--fg);
+  font-family:var(--sans);font-size:var(--fs-body);line-height:var(--lh-body);
+  -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
+}
+a{color:inherit;text-decoration:none}
+button,input,textarea{font:inherit;color:inherit;letter-spacing:inherit}
+svg,img{display:block}
+::selection{background:color-mix(in oklab,var(--accent) 40%,transparent)}
+:focus-visible{outline:1px solid var(--accent);outline-offset:2px;border-radius:4px}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.i{width:16px;height:16px;flex:none;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;
+  transition:stroke-width 80ms,color 80ms}
+
+/* one quiet column, as on a person's page */
+.page{flex:1 0 auto;width:100%;max-width:544px;margin:0 auto;padding:clamp(56px,15vh,144px) 16px 0}
+
+/* the mark: the bare moth, white */
+.mark{display:block;width:60px;height:auto}
+.mark-link{display:inline-block;-webkit-tap-highlight-color:transparent}
+
+.name{margin-top:20px;font-family:var(--serif);font-size:21px;line-height:28px;font-weight:400;letter-spacing:-.01em}
+.meta{margin-top:2px;color:var(--muted);display:flex;flex-wrap:wrap;gap:0 8px}
+.meta span+span::before{content:"·";margin-right:8px;color:var(--faint)}
+
+.bio{margin-top:20px;max-width:468px;color:var(--muted);text-wrap:pretty}
+.bio p+p{margin-top:12px}
+.bio b{font-weight:inherit;color:var(--fg)}
+
+/* inline links: white, with a quiet underline that wakes on hover */
+.ln{color:var(--fg);text-decoration:underline;text-decoration-color:var(--faint);text-decoration-thickness:1px;text-underline-offset:3px;
+  transition:text-decoration-color 80ms}
+@media (hover:hover){.ln:hover{text-decoration-color:var(--fg)}}
+
+/* the invite: a plain grey button (the moth's grey on euguerra.com, #a3a3a3) with a black
+   label. Behind the label, barely there, the moth's whole outline, inner marks too, with a
+   longer stroke that keeps travelling around its edge: a slow loop (9s, linear), paused
+   while the button is off screen. */
+.invite{position:relative;isolation:isolate;display:flex;align-items:center;justify-content:center;width:100%;height:44px;margin-top:24px;padding:0 16px;
+  overflow:hidden;border-radius:8px;background:#a3a3a3;color:#000;font-weight:500;
+  -webkit-tap-highlight-color:transparent;transition:background-color 80ms,box-shadow 180ms var(--press)}
+.invite:active{box-shadow:inset 0 0 0 1px rgb(0 0 0 / .12);transition-duration:80ms}
+.invite:focus-visible{outline-offset:3px;border-radius:8px}
+.invite-bg{position:absolute;right:12%;top:50%;z-index:-1;width:132px;height:auto;transform:translateY(-50%);pointer-events:none;overflow:visible}
+.invite-bg path{fill:none;stroke-width:2.6;stroke-linejoin:round;stroke-linecap:round}
+.invite-bg .base{stroke:rgb(0 0 0 / .06)}
+.invite-bg .run{stroke:rgb(0 0 0 / .15);stroke-dasharray:.42 .58;animation:moth-run 9s linear infinite paused}
+.invite.live .invite-bg .run{animation-play-state:running}
+@keyframes moth-run{to{stroke-dashoffset:-1}}
+.invite-label{display:inline-flex;align-items:center;gap:6px}
+.invite .go{width:14px;height:14px;transition:transform 160ms var(--spring),stroke-width 80ms}
+@media (hover:hover){
+  .invite:hover{background:#b0b0b0}
+  .invite:hover .go{stroke-width:2;transform:translate(1px,-1px)}
+}
+@media (hover:none){.invite:active{background:#b0b0b0}}
+@media (prefers-reduced-motion:reduce){.invite-bg .run{animation:none;stroke-dasharray:none}}
+
+/* footer: a sea of clouds in ASCII that hides the end of the page (js/footer-ascii.js);
+   the time in São Paulo sits at the very foot, over the clouds, which clear behind it */
+.ground{position:relative;flex:none;height:clamp(320px,38vw,540px);margin-top:56px;overflow:hidden}
+.ground-art{position:absolute;inset:0;pointer-events:none}
+.ground-art canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.ground-art .ga-glow{filter:blur(5px);opacity:.5}
+.ground-bar{position:absolute;left:0;right:0;bottom:max(24px,env(safe-area-inset-bottom));z-index:1;max-width:544px;margin:0 auto;padding:0 16px}
+.ground-line{display:inline-flex;flex-wrap:wrap;gap:0 8px;color:var(--muted);font-variant-numeric:tabular-nums}
+.ground-line>*+*::before{content:"·";margin-right:8px;color:var(--faint)}
+.ground-line a{transition:color 80ms}
+@media (hover:hover){.ground-line a:hover{color:var(--fg)}}
+
+/* screen filter: a lens over the whole page that lets clicks through. backdrop-filter lifts
+   the contrast of what is under it; a film grain on top jumps between a few positions. */
+.fx{position:fixed;inset:0;z-index:50;pointer-events:none;overflow:hidden;
+  -webkit-backdrop-filter:contrast(var(--fx-contrast));backdrop-filter:contrast(var(--fx-contrast))}
+.fx::before{content:"";position:absolute;inset:-60px;opacity:var(--fx-grain);
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='g' x='0' y='0'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 2.2 0 0 0 -.75'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23g)'/%3E%3C/svg%3E") 0 0/180px 180px}
+@media (prefers-reduced-motion:no-preference){.fx::before{animation:grain .9s steps(1) infinite}}
+@keyframes grain{0%{transform:translate(0,0)}12.5%{transform:translate(-41px,23px)}25%{transform:translate(17px,-37px)}37.5%{transform:translate(-29px,-13px)}50%{transform:translate(37px,31px)}62.5%{transform:translate(-11px,43px)}75%{transform:translate(29px,-23px)}87.5%{transform:translate(-43px,-31px)}}
+
+/* entrance: Fluid's landing reveal, one item after another */
+@media (prefers-reduced-motion:no-preference){
+  .rise{animation:reveal 250ms var(--spring-land) both;animation-delay:calc(var(--i,0) * 60ms)}
+  @keyframes reveal{from{opacity:0;transform:translateY(8px) scale(.98)}}
 }
 
-* { box-sizing: border-box; }
-
-html { -webkit-text-size-adjust: 100%; }
-
-body {
-  margin: 0;
-  background: var(--bg);
-  color: var(--text);
-  font: 16px/1.6 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-}
-
-main {
-  max-width: 680px;
-  margin: 0 auto;
-  padding: 72px 24px 96px;
-}
-
-a { color: var(--accent); text-decoration: none; }
-a:hover { text-decoration: underline; }
-
-header.brand {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  margin-bottom: 48px;
-}
-
-header.brand img { width: 52px; height: 52px; border-radius: 12px; }
-header.brand a { color: var(--text); font-weight: 600; font-size: 17px; }
-
-h1 {
-  font-size: 40px;
-  line-height: 1.15;
-  letter-spacing: -0.02em;
-  margin: 0 0 16px;
-}
-
-h2 {
-  font-size: 20px;
-  letter-spacing: -0.01em;
-  margin: 44px 0 10px;
-}
-
-p, li { color: var(--secondary); }
-p strong, li strong { color: var(--text); font-weight: 600; }
-
-.lead { font-size: 19px; color: var(--secondary); margin: 0 0 28px; }
-
-.pill {
-  display: inline-block;
-  font-size: 13px;
-  font-weight: 500;
-  padding: 4px 12px;
-  border-radius: 999px;
-  border: 1px solid var(--hairline);
-  color: var(--secondary);
-  margin-bottom: 24px;
-}
-
-ul.features {
-  list-style: none;
-  padding: 0;
-  margin: 32px 0;
-  display: grid;
-  gap: 12px;
-}
-
-ul.features li {
-  padding: 16px 18px;
-  border: 1px solid var(--hairline);
-  border-radius: 14px;
-  background: var(--card);
-}
-
-footer {
-  margin-top: 72px;
-  padding-top: 24px;
-  border-top: 1px solid var(--hairline);
-  font-size: 14px;
-  color: var(--tertiary);
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px 20px;
-}
-
-footer a { color: var(--secondary); }
-
-.updated { font-size: 14px; color: var(--tertiary); margin: 0 0 32px; }
-
-@media (max-width: 520px) {
-  main { padding: 48px 16px 72px; }
-  h1 { font-size: 32px; }
-  .lead { font-size: 17px; }
-}
+/* privacy policy: the same world set for reading, a step larger than the home */
+.doc .title{margin-top:20px;font-family:var(--serif);font-size:var(--fs-display);line-height:var(--lh-display);font-weight:400;letter-spacing:-.015em}
+.doc .updated{margin-top:4px;color:var(--muted)}
+.prose{margin-top:32px;color:var(--muted);font-size:15px;line-height:24px;text-wrap:pretty}
+.prose p,.prose ul{margin-top:12px}
+.prose h2{margin-top:40px;color:var(--fg);font-family:var(--serif);font-size:19px;line-height:24px;font-weight:400;letter-spacing:-.01em}
+.prose h2+p,.prose h2+ul{margin-top:8px}
+.prose strong{color:var(--fg);font-weight:500}
+.prose ul{padding-left:18px}
+.prose li+li{margin-top:6px}
+.prose li::marker{color:var(--faint)}
+.prose a{color:var(--fg);text-decoration:underline;text-decoration-color:var(--faint);text-decoration-thickness:1px;text-underline-offset:3px;
+  overflow-wrap:anywhere;transition:text-decoration-color 80ms}
+@media (hover:hover){.prose a:hover{text-decoration-color:var(--fg)}}
