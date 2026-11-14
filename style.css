@@ -72,10 +72,10 @@ svg,img{display:block}
   -webkit-tap-highlight-color:transparent;transition:background-color 80ms,box-shadow 180ms var(--press)}
 .invite:active{box-shadow:inset 0 0 0 1px rgb(0 0 0 / .12);transition-duration:80ms}
 .invite:focus-visible{outline-offset:3px;border-radius:8px}
-.invite-bg{position:absolute;right:14px;top:50%;z-index:-1;width:auto;height:28px;transform:translateY(-50%);pointer-events:none;overflow:visible}
-.invite-bg path{fill:none;stroke-width:7;stroke-linejoin:round;stroke-linecap:round}
-.invite-bg .base{stroke:rgb(0 0 0 / .14)}
-.invite-bg .run{stroke:rgb(0 0 0 / .4);stroke-dasharray:.42 .58;animation:moth-run 9s linear infinite paused}
+.invite-bg{position:absolute;right:12%;top:50%;z-index:-1;width:132px;height:auto;transform:translateY(-50%);pointer-events:none;overflow:visible}
+.invite-bg path{fill:none;stroke-width:2.6;stroke-linejoin:round;stroke-linecap:round}
+.invite-bg .base{stroke:rgb(0 0 0 / .06)}
+.invite-bg .run{stroke:rgb(0 0 0 / .15);stroke-dasharray:.42 .58;animation:moth-run 9s linear infinite paused}
 .invite.live .invite-bg .run{animation-play-state:running}
 @keyframes moth-run{to{stroke-dashoffset:-1}}
 .invite-label{display:inline-flex;align-items:center;gap:6px}
