@@ -1,0 +1,117 @@
+:root {
+  --bg: #fafafa;
+  --text: #1c1c1c;
+  --secondary: #5e5e5e;
+  --tertiary: #707070;
+  --hairline: rgba(0, 0, 0, 0.08);
+  --card: rgba(0, 0, 0, 0.025);
+  --accent: #2563eb;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #141414;
+    --text: #e8e8e8;
+    --secondary: #a3a3a3;
+    --tertiary: #8a8a8a;
+    --hairline: rgba(255, 255, 255, 0.08);
+    --card: rgba(255, 255, 255, 0.03);
+    --accent: #4c8dff;
+  }
+}
+
+* { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 16px/1.6 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+main {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 72px 24px 96px;
+}
+
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+header.brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 48px;
+}
+
+header.brand img { width: 52px; height: 52px; border-radius: 12px; }
+header.brand a { color: var(--text); font-weight: 600; font-size: 17px; }
+
+h1 {
+  font-size: 40px;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  margin: 0 0 16px;
+}
+
+h2 {
+  font-size: 20px;
+  letter-spacing: -0.01em;
+  margin: 44px 0 10px;
+}
+
+p, li { color: var(--secondary); }
+p strong, li strong { color: var(--text); font-weight: 600; }
+
+.lead { font-size: 19px; color: var(--secondary); margin: 0 0 28px; }
+
+.pill {
+  display: inline-block;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 4px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--hairline);
+  color: var(--secondary);
+  margin-bottom: 24px;
+}
+
+ul.features {
+  list-style: none;
+  padding: 0;
+  margin: 32px 0;
+  display: grid;
+  gap: 12px;
+}
+
+ul.features li {
+  padding: 16px 18px;
+  border: 1px solid var(--hairline);
+  border-radius: 14px;
+  background: var(--card);
+}
+
+footer {
+  margin-top: 72px;
+  padding-top: 24px;
+  border-top: 1px solid var(--hairline);
+  font-size: 14px;
+  color: var(--tertiary);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+}
+
+footer a { color: var(--secondary); }
+
+.updated { font-size: 14px; color: var(--tertiary); margin: 0 0 32px; }
+
+@media (max-width: 520px) {
+  main { padding: 48px 16px 72px; }
+  h1 { font-size: 32px; }
+  .lead { font-size: 17px; }
+}
