@@ -44,21 +44,8 @@
 
 <div class="fx" aria-hidden="true"></div>
 
-<script>
-(function(){
-  // the time in São Paulo, where Grotesk is made ("3:29pm", as on euguerra.com)
-  var time=document.getElementById('sp-time'),fmt;
-  try{fmt=new Intl.DateTimeFormat('en-US',{hour:'numeric',minute:'2-digit',hour12:true,timeZone:'America/Sao_Paulo'})}catch(e){}
-  function tick(){if(!fmt)return;var now=new Date();time.textContent=fmt.format(now).replace(/\s/g,'').toLowerCase();time.setAttribute('datetime',now.toISOString())}
-  tick();setInterval(tick,15000);
-
-  // the invite: the moth's stroke only travels while the button is on screen
-  var invite=document.querySelector('.invite');
-  if('IntersectionObserver' in window){
-    new IntersectionObserver(function(en){invite.classList.toggle('live',en[0].isIntersecting)}).observe(invite);
-  }else invite.classList.add('live');
-})();
-</script>
+<script src="js/sp-time.js" defer></script>
+<script src="js/invite-moth.js" defer></script>
 <script src="js/footer-ascii.js" defer></script>
 </body>
 </html>

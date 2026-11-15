@@ -28,24 +28,6 @@
     <a class="invite rise" style="--i:3" id="open" href="grotesk://auth"><span class="invite-label">Open Grotesk</span></a>
   </main>
   <div class="fx" aria-hidden="true"></div>
-  <script>
-    // The sign-in comes back here (?code=…, or an error). Hand everything to the
-    // app at grotesk://auth, then tidy the address bar. Nothing is sent anywhere else.
-    (function () {
-      var params = new URLSearchParams(location.search);
-      new URLSearchParams(location.hash.slice(1)).forEach(function (value, key) {
-        if (!params.has(key)) params.set(key, value);
-      });
-      var query = params.toString();
-      var target = "grotesk://auth" + (query ? "?" + query : "");
-      document.getElementById("open").href = target;
-      if (params.has("error") || params.has("error_description")) {
-        document.getElementById("title").textContent = "Couldn't sign you in.";
-        document.getElementById("detail").textContent = "Go back to Grotesk and try again.";
-      }
-      history.replaceState(null, "", location.pathname);
-      if (query) location.href = target;
-    })();
-  </script>
+  <script src="../js/signin-relay.js"></script>
 </body>
 </html>
