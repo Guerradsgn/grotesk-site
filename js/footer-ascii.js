@@ -55,7 +55,7 @@
   host.innerHTML = '<canvas class="ga-glow"></canvas><canvas class="ga-field"></canvas>';
   var glow = host.children[0], canvas = host.children[1];
   var gctx = glow.getContext('2d');
-  var gl = null, ctx = null, cellTex, atlasTex, uGrid, uCell, uH, uOff;
+  var gl = null, ctx = null, cellTex, atlasTex, uGrid, uCell, uH, uOff, texCols = 0, texRows = 0, lost = false;
 
   function initGL() {
     try { gl = canvas.getContext('webgl', { alpha: true, premultipliedAlpha: true, antialias: false, preserveDrawingBuffer: true }); } catch (e) { gl = null; }
@@ -98,7 +98,18 @@
     uOff = gl.getUniformLocation(prog, 'uOff');
     return true;
   }
-  if (!initGL()) ctx = canvas.getContext('2d');
+  if (!initGL()) {
+    // a canvas that already handed out a WebGL context (the shader failed after it) returns
+    // null for '2d', so the fallback draws on a fresh one
+    ctx = canvas.getContext('2d');
+    if (!ctx) {
+      var fresh = canvas.cloneNode(false);
+      host.replaceChild(fresh, canvas);
+      canvas = fresh;
+      ctx = canvas.getContext('2d');
+    }
+    if (!ctx) return;
+  }
 
   var W = 0, H = 0, dpr = 1, cw = 5, ch = 8, cols = 0, rows = 0, off = 0, ceil = 0, scale = 1, lift = 0, quiet = null;
   var out = null, tone = null, topA = null, topB = null, atlas = null, aw = 0, ah = 0;
@@ -221,11 +232,15 @@
   }
 
   function present() {
+    if (lost) return;
     if (gl) {
       gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, cellTex);
-      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, cols, rows, 0, gl.RGBA, gl.UNSIGNED_BYTE, out);
+      if (texCols !== cols || texRows !== rows) {   // allocate only when the grid changes size
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, cols, rows, 0, gl.RGBA, gl.UNSIGNED_BYTE, out);
+        texCols = cols; texRows = rows;
+      } else gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, cols, rows, gl.RGBA, gl.UNSIGNED_BYTE, out);
       gl.drawArrays(gl.TRIANGLES, 0, 3);
-    } else {
+    } else if (ctx) {
       ctx.setTransform(1, 0, 0, 1, 0, 0);
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       for (var r = 0; r < rows; r++) for (var c = 0; c < cols; c++) {
@@ -235,7 +250,7 @@
         ctx.drawImage(atlas, out[j] * aw, 0, aw, ah, Math.round(c * cw * dpr), Math.round((r * ch - off) * dpr), aw, ah);
       }
       ctx.globalAlpha = 1;
-    }
+    } else return;
     gctx.globalCompositeOperation = 'copy';   // the glow is the same frame, small and blurred (CSS)
     gctx.drawImage(canvas, 0, 0, glow.width, glow.height);
   }
@@ -245,6 +260,7 @@
   var clock = 0, raf = 0, last = 0, visible = false;
 
   function still() { compose(20, 1); present(); }
+  function redraw() { if (reduce) still(); else if (!raf) { compose(clock, smooth(0, ENTER, clock)); present(); } }
   function frame(now) {
     raf = 0;
     if (!visible) return;
@@ -258,7 +274,7 @@
     compose(clock, smooth(0, ENTER, clock));
     present();
   }
-  function play() { if (ready && !raf && visible) { last = 0; raf = requestAnimationFrame(frame); } }
+  function play() { if (ready && !lost && !raf && visible) { last = 0; raf = requestAnimationFrame(frame); } }
   function stop() { if (raf) cancelAnimationFrame(raf); raf = 0; }
 
   // the footer may have no size yet (a tab opened in the background, a hidden frame):
@@ -274,7 +290,7 @@
     document.fonts.load(WEIGHT + ' 16px "JetBrains Mono"').then(function () {
       if (!ready) return;
       buildAtlas();
-      if (reduce) still(); else if (!raf) { compose(clock, smooth(0, ENTER, clock)); present(); }
+      redraw();
     }).catch(function () {});
   }
 
@@ -296,6 +312,19 @@
     foot.addEventListener('pointerleave', function () { ptr.on = false; });
   }
 
+  // the system can take the GPU context away (a GPU switch, memory pressure): wait for it to
+  // come back, then rebuild the program and textures instead of leaving the footer empty
+  if (gl) {
+    canvas.addEventListener('webglcontextlost', function (ev) { ev.preventDefault(); lost = true; stop(); });
+    canvas.addEventListener('webglcontextrestored', function () {
+      lost = false; texCols = texRows = 0;
+      if (!initGL() || !ready) return;
+      buildAtlas();
+      redraw();
+      play();
+    });
+  }
+
   var rt;
   if ('ResizeObserver' in window) new ResizeObserver(function () {
     clearTimeout(rt);
@@ -303,7 +332,7 @@
       if (!ready) { start(); return; }
       if (host.clientWidth === W && host.clientHeight === H) return;
       if (!layout()) return;
-      if (reduce) still(); else if (!raf) { compose(clock, smooth(0, ENTER, clock)); present(); }
+      redraw();
     }, 120);
   }).observe(host);
 })();
