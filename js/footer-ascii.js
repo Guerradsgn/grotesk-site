@@ -11,8 +11,7 @@
   'use strict';
 
   var foot = document.querySelector('.ground');
-  // inside the footer, or drawn behind the page (the landing) and kept over the footer
-  var host = foot && (foot.querySelector('.ground-art') || document.querySelector('.ground-art'));
+  var host = foot && foot.querySelector('.ground-art');
   if (!host) return;
   var bar = foot.querySelector('.ground-bar');   // the time: above the clouds, or at the foot over them
 
