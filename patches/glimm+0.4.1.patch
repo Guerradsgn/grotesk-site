@@ -1,0 +1,32 @@
+diff --git a/node_modules/glimm/dist/chunk-U6WLNRFO.js b/node_modules/glimm/dist/chunk-U6WLNRFO.js
+index d9dee62..6b092c6 100644
+--- a/node_modules/glimm/dist/chunk-U6WLNRFO.js
++++ b/node_modules/glimm/dist/chunk-U6WLNRFO.js
+@@ -1780,6 +1780,9 @@ var GlimmScope = /* @__PURE__ */ forwardRef(function GlimmScope2({
+     const fullBleed = r.width >= innerWidth - 1 && r.height >= innerHeight - 1;
+     const m = fullBleed ? 0.2 : containedOverscan(c.bandTight);
+     const frontAt = (p) => (-m + (1 + 2 * m) * p) * L;
++    // grotesk patch: when the play has an `at`, the band is born there (the pressed button) instead of at the edge
++    const atAlong = at ? (across ? (c.direction === "rtl" ? W - ox : ox) : (c.direction === "btt" ? H - oy : oy)) : null;
++    const peek = atAlong === null ? PEEK : Math.min(0.92, Math.max(PEEK, (atAlong / Math.max(1, L) + m) / (1 + 2 * m)));
+     const width = 0.5 * L / Math.sqrt(c.bandTight);
+     const scale = Math.min(1, Math.max(0.25, Math.min(W, H) / 600)) * c.intensity;
+     const fadeAt = (p) => {
+@@ -1924,7 +1927,7 @@ var GlimmScope = /* @__PURE__ */ forwardRef(function GlimmScope2({
+         gather = from.gather + ((work ? HOLD : 1) - from.gather) * ease(pull) * pull;
+         haze = work ? from.gather * (1 - ease(pull)) : gather * (1 - ease(clamp((t - GATHER - HOLD_AFTER) / RELAX)));
+         strength = from.strength + ((work ? 0.55 : 1) - from.strength) * ease(pull);
+-        progress = from.progress + (PEEK - from.progress) * ease(pull);
++        progress = from.progress + (peek - from.progress) * ease(pull);
+         if (readyAt !== null) {
+           const k = snapMs > 0 ? clamp((now - readyAt) / snapMs) : 1;
+           gather = snapFrom + (1 - snapFrom) * ease(k);
+@@ -1940,7 +1943,7 @@ var GlimmScope = /* @__PURE__ */ forwardRef(function GlimmScope2({
+         haze = gather;
+         let k = clamp(since / sweepMs2);
+         if (ffAt !== null) k = ffFrom + (1 - ffFrom) * ease(clamp((now - ffAt) / FAST));
+-        progress = PEEK + (1 - PEEK) * (1 - (1 - k) ** 2.4);
++        progress = peek + (1 - peek) * (1 - (1 - k) ** 2.4);
+         const ramp = rampFrom + (1 - rampFrom) * ease(clamp(since / RAMP));
+         strength = (1 - k) ** 1.2 * fadeAt(progress) * ramp;
+         if (k >= 1 || c.fade && progress >= c.fade[1]) {
