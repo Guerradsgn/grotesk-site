@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from 'react'
 import { GlimmScope, type GlimmScopeHandle } from 'glimm/react'
+import { accentChain } from 'glimm'
 
 // The waitlist's only door (join_waitlist on Supabase): it answers the same whether the
 // address is new or already there. The publishable key is public by design.
@@ -16,6 +17,9 @@ const MESSAGES: Record<Failure, string> = {
 }
 
 // the same rule as join_waitlist, so a cleared error never comes back on submit
+// glimm.dev's own Publish palette (DEMO_PALETTES.publish there)
+const PUBLISH = accentChain(['#CB30E0', '#FF2D55', '#FF8D28', '#FFCC00'])
+
 const valid = (v: string) => v.length <= 254 && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v)
 
 export default function Landing() {
@@ -158,8 +162,8 @@ export default function Landing() {
   }, [])
 
   return (
-    // glimm.dev's Publish, but the ember crest is a ring born at the pill that grows over the page (radial: our patch)
-    <GlimmScope ref={scope} direction="ttb" sweepMs={2700} palette="ember" bandTight={28} peakAlpha={1.1} brightness={1.15} curve={0.12} radial
+    // glimm.dev's Publish demo: the whole page in one scope, the ember band in 2.7s
+    <GlimmScope ref={scope} direction="ttb" sweepMs={2700} palette={PUBLISH} curve={0.12} span={1}
       style={{ position: 'fixed', inset: 0 }}>
       <div className="scroll">
         <main className="page">

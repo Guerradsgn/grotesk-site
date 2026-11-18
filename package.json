@@ -4,8 +4,7 @@
   "scripts": {
     "dev": "next dev -p 4381",
     "build": "next build",
-    "start": "next start -p 4381",
-    "postinstall": "patch-package"
+    "start": "next start -p 4381"
   },
   "dependencies": {
     "glimm": "^0.4.1",
@@ -16,7 +15,6 @@
   "devDependencies": {
     "@types/node": "^26.6.6",
     "@types/react": "^19.3.0",
-    "patch-package": "^8.0.1",
     "typescript": "^6.0.3"
   }
 }
