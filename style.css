@@ -25,7 +25,7 @@
   --press:cubic-bezier(.23,1,.32,1);
   --sans:Geist,"Geist Fallback",ui-sans-serif,system-ui,sans-serif;
   --serif:"Geist Serif",ui-serif,Georgia,serif;
-  --measure:468px;     /* the text measure: paragraphs and the email field share one right edge */
+  --measure:468px;     /* the text measure: paragraphs and the invite share one right edge */
   --fx-contrast:1.15;   /* screen filter: contrast of everything under it */
   --fx-grain:.09;       /* screen filter: strength of the film grain */
 }
@@ -48,11 +48,7 @@ svg,img{display:block}
   transition:stroke-width 80ms,color 80ms}
 
 /* one quiet column, as on a person's page */
-/* the landing (Next): the page scrolls inside glimm's scope, which is fixed to the window */
-.scroll{position:absolute;inset:0;overflow-y:auto;display:flex;flex-direction:column;scrollbar-color:#2e2e2e var(--bg)}
-/* glimm's page effect copies the page into a texture: text over a see-through page comes
-   out ragged, so the column the text sits in has the page colour under it */
-.page{flex:1 0 auto;background:var(--bg);width:100%;max-width:544px;margin:0 auto;padding:clamp(56px,15vh,144px) 16px 0}
+.page{flex:1 0 auto;width:100%;max-width:544px;margin:0 auto;padding:clamp(56px,15vh,144px) 16px 0}
 
 /* the mark: the bare moth, white */
 .mark{display:block;width:60px;height:auto}
@@ -71,16 +67,40 @@ svg,img{display:block}
   transition:text-decoration-color 80ms}
 @media (hover:hover){.ln:hover{text-decoration-color:var(--fg)}}
 
-/* the waitlist, modelled on glimm.dev's Publish: a quiet dark field (as on euguerra.com's
-   message box) with a moth-grey pill inside it on the right. No outline on the field in any
-   state: hover lifts the fill a shade, typing lifts it one more, both over 200ms. 16px type:
-   smaller fields make iOS zoom the page on focus. */
-.notify{position:relative;display:grid;gap:12px;width:100%;max-width:var(--measure);margin-top:24px}
-.field-wrap{position:relative}
-.field{width:100%;height:44px;padding:0 18px;border:0;border-radius:999px;background:var(--field);outline:none;
+/* the invite: a plain grey button (the moth's grey on euguerra.com, #a3a3a3) with a black
+   label. Behind the label, barely there, the moth's whole outline, inner marks too, with a
+   longer stroke that keeps travelling around its edge: a slow loop (9s, linear), paused
+   while the button is off screen. */
+.invite{position:relative;isolation:isolate;display:flex;align-items:center;justify-content:center;width:100%;max-width:var(--measure);height:44px;margin-top:24px;padding:0 16px;
+  overflow:hidden;border-radius:8px;background:#a3a3a3;color:#000;font-weight:500;
+  -webkit-tap-highlight-color:transparent;transition:background-color 80ms,box-shadow 180ms var(--press),transform 160ms var(--press)}
+.invite:active{box-shadow:inset 0 0 0 1px rgb(0 0 0 / .12);transition-duration:80ms}
+.invite:active:not(:disabled){transform:scale(.985)}
+.invite:focus-visible{outline-offset:3px;border-radius:8px}
+.invite-bg{position:absolute;right:12%;top:50%;z-index:-1;width:132px;height:auto;transform:translateY(-50%);pointer-events:none;overflow:visible}
+.invite-bg path{fill:none;stroke-width:2.6;stroke-linejoin:round;stroke-linecap:round}
+.invite-bg .base{stroke:rgb(0 0 0 / .06)}
+.invite-bg .run{stroke:rgb(0 0 0 / .15);stroke-dasharray:.42 .58;animation:moth-run 9s linear infinite paused}
+.invite.live .invite-bg .run{animation-play-state:running}
+@keyframes moth-run{to{stroke-dashoffset:-1}}
+.invite-label{display:grid;place-items:center}
+.invite .go{width:14px;height:14px;transition:transform 160ms var(--spring),stroke-width 80ms}
+@media (hover:hover){
+  .invite:hover{background:#b0b0b0}
+  .invite:hover .go{stroke-width:2;transform:translate(1px,-1px)}
+}
+@media (hover:none){.invite:active{background:#b0b0b0}}
+@media (prefers-reduced-motion:reduce){.invite-bg .run{animation:none;stroke-dasharray:none}}
+
+/* the waitlist: a quiet dark field to type an email in (as on euguerra.com's message
+   box), then the moth button sends it. No outline in any state: hover lifts the fill a
+   shade, typing lifts it one more, both easing in over 200ms. 16px type: smaller fields
+   make iOS zoom the page on focus. */
+.notify{display:grid;gap:12px;width:100%;max-width:var(--measure);margin-top:24px}
+.notify .invite{margin-top:0;border:0;font:inherit;font-weight:500;cursor:pointer}
+.field{width:100%;height:44px;padding:0 14px;border:0;border-radius:10px;background:var(--field);outline:none;
   color:var(--fg);font:inherit;font-size:16px;caret-color:var(--fg);
-  -webkit-appearance:none;appearance:none;
-  transition:background-color 200ms var(--press),color 200ms var(--press),padding-right 260ms cubic-bezier(.25,.8,.25,1)}
+  -webkit-appearance:none;appearance:none;transition:background-color 200ms var(--press),color 200ms var(--press)}
 .field::placeholder{color:var(--muted);opacity:1;transition:color 200ms var(--press)}
 @media (hover:hover){.field:hover{background:var(--field-hover)}}
 .field:focus,.field:focus-visible{background:var(--field-active);outline:none}
@@ -89,36 +109,21 @@ svg,img{display:block}
 /* autofill paints its own fill: keep the field's own colour */
 .field:-webkit-autofill,.field:-webkit-autofill:hover,.field:-webkit-autofill:focus{
   -webkit-text-fill-color:var(--fg);-webkit-box-shadow:0 0 0 100px var(--field) inset;caret-color:var(--fg);transition:background-color 9999s}
-
-/* the pill: the page's one filled shape, moth grey with a black label. It hugs the version
-   it shows and eases between widths (script: fit), growing leftwards from the field's edge,
-   as glimm's Publish grows to fit its spinner. */
-.pill{position:absolute;top:6px;right:6px;display:grid;align-items:center;justify-items:start;height:32px;padding:0 14px;
-  overflow:hidden;border:0;border-radius:999px;background:#a3a3a3;color:#000;font:inherit;font-size:14px;font-weight:500;white-space:nowrap;
-  cursor:pointer;-webkit-tap-highlight-color:transparent;
-  transition:width 260ms cubic-bezier(.25,.8,.25,1),background-color 80ms,transform 160ms var(--press)}
-.pill:active:not(:disabled){transform:scale(.96);transition-duration:260ms,80ms,80ms}
-.pill:focus-visible{outline-offset:2px;border-radius:999px}
-.pill:disabled{cursor:default}
-@media (hover:hover){.pill:not(:disabled):hover{background:#b0b0b0}}
-@media (hover:none){.pill:active{background:#b0b0b0}}
-
-/* every state keeps one slot. The pill's versions (idle, then a busy group whose glyph stays
-   put while "Adding you" crossfades to "You're on the list") and the line under the field
-   (hint, error, thanks) are layers in one grid cell: the outgoing one sinks 4px into a 3px
-   blur in 180ms, the incoming one rises out of it in 280ms, 150ms later (glimm's timing). */
+/* every state of the form keeps one slot. The button's versions (idle, then a busy group
+   whose glyph stays put while "Adding you" crossfades to "You're on the list") and the
+   line under it (hint, error, thanks) are layers in one grid cell: the outgoing one fades
+   with a 2px blur, the incoming one follows 80ms later. Nothing moves sideways or jumps. */
 .layer,.lbl,.msg{grid-area:1/1;opacity:0;filter:blur(3px);transform:translateY(4px);
   transition:opacity 180ms ease,filter 180ms ease,transform 180ms ease}
 .layer[data-on],.lbl[data-on],.msg[data-on]{opacity:1;filter:none;transform:none;
   transition:opacity 280ms cubic-bezier(.25,.8,.25,1) 150ms,filter 280ms cubic-bezier(.25,.8,.25,1) 150ms,transform 280ms cubic-bezier(.25,.8,.25,1) 150ms}
-.layer{display:inline-flex;align-items:center;gap:6px;justify-self:start}
+.layer{display:inline-flex;align-items:center;gap:6px}
 .busy{gap:8px}
 .labels{display:grid;justify-items:start}
-.lbl{justify-self:start}
 .glyph{display:grid;width:14px;height:14px}
 .glyph svg{grid-area:1/1;width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
-/* the spinner grows in from half size as the label swaps and turns only while sending,
-   and through its fade-out */
+/* the spinner grows in from half size as the label swaps (as on glimm.dev's Publish) and
+   turns only while sending, and through its fade-out */
 .spin{opacity:0;transform:scale(.5);transition:opacity 250ms cubic-bezier(.25,.8,.25,1),transform 250ms cubic-bezier(.25,.8,.25,1)}
 .spin circle{stroke-dasharray:.62 .38;transform-origin:12px 12px}
 .notify.spinning .spin circle{animation:spin 700ms linear infinite}
@@ -129,11 +134,24 @@ svg,img{display:block}
 .notify[data-state="done"] .tick path{stroke-dashoffset:0}
 .notify-note{display:grid;color:var(--muted)}
 .msg.err{color:var(--fg)}
-/* glimm's band (js/glimm.js) draws on a canvas over the whole page, under the grain lens */
-.glimm{position:fixed;inset:0;width:100%;height:100%;z-index:40;pointer-events:none}
+/* sent: a soft band of light washes down over the form and the new state is already behind
+   it (glimm.dev's sweep, in the page's own white): the button turns as the band crosses it,
+   the line under it a beat later */
+.notify{position:relative}
+.sweep{position:absolute;inset:-28px -48px;pointer-events:none;overflow:hidden;
+  -webkit-mask-image:linear-gradient(90deg,transparent,#000 18%,#000 82%,transparent);mask-image:linear-gradient(90deg,transparent,#000 18%,#000 82%,transparent)}
+.sweep::before{content:"";position:absolute;left:0;right:0;top:0;height:70%;opacity:0;transform:translateY(-100%);
+  background:linear-gradient(180deg,transparent,rgb(255 255 255 / .09) 30%,rgb(255 255 255 / .24) 50%,rgb(255 255 255 / .09) 70%,transparent);
+  filter:blur(6px);mix-blend-mode:plus-lighter}
+.notify.sweeping .sweep::before{animation:sweep 900ms cubic-bezier(.45,0,.1,1) both}
+/* from just above the form to just below it (the band is 70% of the box: 1/0.7 = 143%) */
+@keyframes sweep{0%{opacity:0;transform:translateY(-100%)}12%,88%{opacity:1}100%{opacity:0;transform:translateY(143%)}}
+.notify .invite:disabled{cursor:default}
+@media (hover:hover){.notify[data-state="sending"] .invite:hover,.notify[data-state="done"] .invite:hover{background:#a3a3a3}}
 @media (prefers-reduced-motion:reduce){
   .layer,.lbl,.msg{filter:none;transform:none}
   .notify.spinning .spin circle{animation:none}
+  .notify.sweeping .sweep::before{animation:none}
   .tick path{transition:none}
 }
 .sr,.trap{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
@@ -142,8 +160,6 @@ svg,img{display:block}
    the time in São Paulo sits at the very foot, over the clouds, which clear behind it */
 .ground{position:relative;flex:none;height:clamp(320px,38vw,540px);margin-top:56px;overflow:hidden}
 .ground-art{position:absolute;inset:0;pointer-events:none}
-/* on the landing the clouds sit behind glimm's scope (they're canvases, which its page effect can't copy) */
-.ground-art.behind{position:fixed;inset:auto;left:0;top:0;z-index:0}
 .ground-art canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
 .ground-art .ga-glow{filter:blur(5px);opacity:.5}
 .ground-bar{position:absolute;left:0;right:0;bottom:max(24px,env(safe-area-inset-bottom));z-index:1;max-width:544px;margin:0 auto;padding:0 16px}

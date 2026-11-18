@@ -3,7 +3,3 @@
 PRODUCT.md
 DESIGN.md
 .impeccable/
-# Next.js
-node_modules/
-.next/
-next-env.d.ts
