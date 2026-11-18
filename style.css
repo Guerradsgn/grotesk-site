@@ -73,8 +73,9 @@ svg,img{display:block}
    while the button is off screen. */
 .invite{position:relative;isolation:isolate;display:flex;align-items:center;justify-content:center;width:100%;max-width:var(--measure);height:44px;margin-top:24px;padding:0 16px;
   overflow:hidden;border-radius:8px;background:#a3a3a3;color:#000;font-weight:500;
-  -webkit-tap-highlight-color:transparent;transition:background-color 80ms,box-shadow 180ms var(--press)}
+  -webkit-tap-highlight-color:transparent;transition:background-color 80ms,box-shadow 180ms var(--press),transform 160ms var(--press)}
 .invite:active{box-shadow:inset 0 0 0 1px rgb(0 0 0 / .12);transition-duration:80ms}
+.invite:active:not(:disabled){transform:scale(.985)}
 .invite:focus-visible{outline-offset:3px;border-radius:8px}
 .invite-bg{position:absolute;right:12%;top:50%;z-index:-1;width:132px;height:auto;transform:translateY(-50%);pointer-events:none;overflow:visible}
 .invite-bg path{fill:none;stroke-width:2.6;stroke-linejoin:round;stroke-linecap:round}
@@ -82,7 +83,7 @@ svg,img{display:block}
 .invite-bg .run{stroke:rgb(0 0 0 / .15);stroke-dasharray:.42 .58;animation:moth-run 9s linear infinite paused}
 .invite.live .invite-bg .run{animation-play-state:running}
 @keyframes moth-run{to{stroke-dashoffset:-1}}
-.invite-label{display:inline-flex;align-items:center;gap:6px}
+.invite-label{display:grid;place-items:center}
 .invite .go{width:14px;height:14px;transition:transform 160ms var(--spring),stroke-width 80ms}
 @media (hover:hover){
   .invite:hover{background:#b0b0b0}
@@ -99,7 +100,7 @@ svg,img{display:block}
 .notify .invite{margin-top:0;border:0;font:inherit;font-weight:500;cursor:pointer}
 .field{width:100%;height:44px;padding:0 14px;border:0;border-radius:10px;background:var(--field);outline:none;
   color:var(--fg);font:inherit;font-size:16px;caret-color:var(--fg);
-  -webkit-appearance:none;appearance:none;transition:background-color 200ms var(--press)}
+  -webkit-appearance:none;appearance:none;transition:background-color 200ms var(--press),color 200ms var(--press)}
 .field::placeholder{color:var(--muted);opacity:1;transition:color 200ms var(--press)}
 @media (hover:hover){.field:hover{background:var(--field-hover)}}
 .field:focus,.field:focus-visible{background:var(--field-active);outline:none}
@@ -108,13 +109,51 @@ svg,img{display:block}
 /* autofill paints its own fill: keep the field's own colour */
 .field:-webkit-autofill,.field:-webkit-autofill:hover,.field:-webkit-autofill:focus{
   -webkit-text-fill-color:var(--fg);-webkit-box-shadow:0 0 0 100px var(--field) inset;caret-color:var(--fg);transition:background-color 9999s}
-.notify-note{color:var(--muted)}
-.notify-note.err{color:var(--fg)}
-.notify .ok{display:none}
-.notify.done .go{display:none}
-.notify.done .ok{display:block;width:14px;height:14px}
+/* every state of the form keeps one slot. The button's versions (idle, then a busy group
+   whose glyph stays put while "Adding you" crossfades to "You're on the list") and the
+   line under it (hint, error, thanks) are layers in one grid cell: the outgoing one fades
+   with a 2px blur, the incoming one follows 80ms later. Nothing moves sideways or jumps. */
+.layer,.lbl,.msg{grid-area:1/1;opacity:0;filter:blur(3px);transform:translateY(4px);
+  transition:opacity 180ms ease,filter 180ms ease,transform 180ms ease}
+.layer[data-on],.lbl[data-on],.msg[data-on]{opacity:1;filter:none;transform:none;
+  transition:opacity 280ms cubic-bezier(.25,.8,.25,1) 150ms,filter 280ms cubic-bezier(.25,.8,.25,1) 150ms,transform 280ms cubic-bezier(.25,.8,.25,1) 150ms}
+.layer{display:inline-flex;align-items:center;gap:6px}
+.busy{gap:8px}
+.labels{display:grid;justify-items:start}
+.glyph{display:grid;width:14px;height:14px}
+.glyph svg{grid-area:1/1;width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+/* the spinner grows in from half size as the label swaps (as on glimm.dev's Publish) and
+   turns only while sending, and through its fade-out */
+.spin{opacity:0;transform:scale(.5);transition:opacity 250ms cubic-bezier(.25,.8,.25,1),transform 250ms cubic-bezier(.25,.8,.25,1)}
+.spin circle{stroke-dasharray:.62 .38;transform-origin:12px 12px}
+.notify.spinning .spin circle{animation:spin 700ms linear infinite}
+.notify[data-state="sending"] .spin{opacity:1;transform:none;transition-delay:120ms}
+@keyframes spin{to{transform:rotate(1turn)}}
+/* sent: the check draws itself where the spinner was */
+.tick path{stroke-dasharray:1;stroke-dashoffset:1;transition:stroke-dashoffset 380ms cubic-bezier(.25,.8,.25,1) 140ms}
+.notify[data-state="done"] .tick path{stroke-dashoffset:0}
+.notify-note{display:grid;color:var(--muted)}
+.msg.err{color:var(--fg)}
+/* sent: a soft band of light washes down over the form and the new state is already behind
+   it (glimm.dev's sweep, in the page's own white): the button turns as the band crosses it,
+   the line under it a beat later */
+.notify{position:relative}
+.sweep{position:absolute;inset:-28px -48px;pointer-events:none;overflow:hidden;
+  -webkit-mask-image:linear-gradient(90deg,transparent,#000 18%,#000 82%,transparent);mask-image:linear-gradient(90deg,transparent,#000 18%,#000 82%,transparent)}
+.sweep::before{content:"";position:absolute;left:0;right:0;top:0;height:70%;opacity:0;transform:translateY(-100%);
+  background:linear-gradient(180deg,transparent,rgb(255 255 255 / .07) 30%,rgb(255 255 255 / .17) 50%,rgb(255 255 255 / .07) 70%,transparent);
+  filter:blur(6px);mix-blend-mode:plus-lighter}
+.notify.sweeping .sweep::before{animation:sweep 900ms cubic-bezier(.45,0,.1,1) both}
+/* from just above the form to just below it (the band is 70% of the box: 1/0.7 = 143%) */
+@keyframes sweep{0%{opacity:0;transform:translateY(-100%)}12%,88%{opacity:1}100%{opacity:0;transform:translateY(143%)}}
 .notify .invite:disabled{cursor:default}
-@media (hover:hover){.notify.done .invite:hover{background:#a3a3a3}}
+@media (hover:hover){.notify[data-state="sending"] .invite:hover,.notify[data-state="done"] .invite:hover{background:#a3a3a3}}
+@media (prefers-reduced-motion:reduce){
+  .layer,.lbl,.msg{filter:none;transform:none}
+  .notify.spinning .spin circle{animation:none}
+  .notify.sweeping .sweep::before{animation:none}
+  .tick path{transition:none}
+}
 .sr,.trap{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 
 /* footer: a sea of clouds in ASCII that hides the end of the page (js/footer-ascii.js);
@@ -138,10 +177,18 @@ svg,img{display:block}
 @media (prefers-reduced-motion:no-preference){.fx::before{animation:grain .9s steps(1) infinite}}
 @keyframes grain{0%{transform:translate(0,0)}12.5%{transform:translate(-41px,23px)}25%{transform:translate(17px,-37px)}37.5%{transform:translate(-29px,-13px)}50%{transform:translate(37px,31px)}62.5%{transform:translate(-11px,43px)}75%{transform:translate(29px,-23px)}87.5%{transform:translate(-43px,-31px)}}
 
-/* entrance: Fluid's landing reveal, one item after another */
+/* entrance: each item rises out of a soft blur in reading order, 70ms apart, the whole
+   page settled in about 1.2s. The moth comes first and a touch smaller. Reduced motion
+   gets a plain fade. */
 @media (prefers-reduced-motion:no-preference){
-  .rise{animation:reveal 250ms var(--spring-land) both;animation-delay:calc(var(--i,0) * 60ms)}
-  @keyframes reveal{from{opacity:0;transform:translateY(8px) scale(.98)}}
+  .rise{animation:reveal 760ms cubic-bezier(.25,.8,.25,1) both;animation-delay:calc(var(--i,0) * 70ms)}
+  .mark.rise{animation-name:reveal-mark;animation-duration:900ms}
+  @keyframes reveal{from{opacity:0;transform:translateY(14px);filter:blur(8px)}}
+  @keyframes reveal-mark{from{opacity:0;transform:translateY(6px) scale(.92);filter:blur(8px)}}
+}
+@media (prefers-reduced-motion:reduce){
+  .rise{animation:fade 300ms ease both}
+  @keyframes fade{from{opacity:0}}
 }
 
 /* privacy policy: the same world set for reading, a step larger than the home */
