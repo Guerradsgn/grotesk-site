@@ -14,6 +14,10 @@
   --muted:#a1a1a1;
   --faint:#5c5c5c;
   --accent:#6B97FF;
+  --field:#1a1a1a;          /* the email field at rest */
+  --field-hover:#1f1f1f;    /* a shade up under the pointer */
+  --field-active:#242424;   /* one more while typing */
+  --field-hint:#8a8a8a;     /* the placeholder steps back while typing */
   --fs-display:28px;--lh-display:34px;
   --fs-body:14px;--lh-body:20px;
   --spring:linear(0, .5729, .8966, .9789, .996, 1, 1);
@@ -87,18 +91,23 @@ svg,img{display:block}
 @media (hover:none){.invite:active{background:#b0b0b0}}
 @media (prefers-reduced-motion:reduce){.invite-bg .run{animation:none;stroke-dasharray:none}}
 
-/* the waitlist: a line to type an email on, then the moth button sends it. The field is a
-   line with the links' Smoke underline (white while typing), so the button stays the only
-   filled shape. 16px type: smaller fields make iOS zoom the page on focus. */
+/* the waitlist: a quiet dark field to type an email in (as on euguerra.com's message
+   box), then the moth button sends it. No outline in any state: hover lifts the fill a
+   shade, typing lifts it one more, both easing in over 200ms. 16px type: smaller fields
+   make iOS zoom the page on focus. */
 .notify{display:grid;gap:12px;width:100%;max-width:var(--measure);margin-top:24px}
 .notify .invite{margin-top:0;border:0;font:inherit;font-weight:500;cursor:pointer}
-.field{width:100%;height:44px;padding:0;border:0;border-bottom:1px solid var(--faint);border-radius:0;background:transparent;
-  color:var(--fg);font:inherit;font-size:16px;caret-color:var(--fg);transition:border-color 80ms}
-.field::placeholder{color:var(--muted);opacity:1}
-@media (hover:hover){.field:hover{border-bottom-color:var(--muted)}}
-.field:focus{border-bottom-color:var(--fg)}
-.field:focus-visible{outline-offset:4px}
-.field:read-only{color:var(--muted);border-bottom-color:var(--faint)}
+.field{width:100%;height:44px;padding:0 14px;border:0;border-radius:10px;background:var(--field);outline:none;
+  color:var(--fg);font:inherit;font-size:16px;caret-color:var(--fg);
+  -webkit-appearance:none;appearance:none;transition:background-color 200ms var(--press)}
+.field::placeholder{color:var(--muted);opacity:1;transition:color 200ms var(--press)}
+@media (hover:hover){.field:hover{background:var(--field-hover)}}
+.field:focus,.field:focus-visible{background:var(--field-active);outline:none}
+.field:focus::placeholder{color:var(--field-hint)}
+.field:read-only{background:var(--field);color:var(--muted);cursor:default}
+/* autofill paints its own fill: keep the field's own colour */
+.field:-webkit-autofill,.field:-webkit-autofill:hover,.field:-webkit-autofill:focus{
+  -webkit-text-fill-color:var(--fg);-webkit-box-shadow:0 0 0 100px var(--field) inset;caret-color:var(--fg);transition:background-color 9999s}
 .notify-note{color:var(--muted)}
 .notify-note.err{color:var(--fg)}
 .notify .ok{display:none}
