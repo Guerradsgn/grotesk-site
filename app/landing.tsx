@@ -158,8 +158,8 @@ export default function Landing() {
   }, [])
 
   return (
-    // glimm.dev's Publish demo: the whole page in one scope, the ember band down it in 2.7s
-    <GlimmScope ref={scope} direction="ttb" sweepMs={2700} palette="ember" bandTight={28} peakAlpha={1.1} brightness={1.15} curve={0.12}
+    // glimm.dev's Publish, but the ember crest is a ring born at the pill that grows over the page (radial: our patch)
+    <GlimmScope ref={scope} direction="ttb" sweepMs={2700} palette="ember" bandTight={28} peakAlpha={1.1} brightness={1.15} curve={0.12} radial
       style={{ position: 'fixed', inset: 0 }}>
       <div className="scroll">
         <main className="page">
