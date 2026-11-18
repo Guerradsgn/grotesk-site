@@ -26,6 +26,29 @@ export default function Landing() {
   const scope = useRef<GlimmScopeHandle>(null)
   const formRef = useRef<HTMLFormElement>(null)
   const timeRef = useRef<HTMLTimeElement>(null)
+  const artRef = useRef<HTMLDivElement>(null)
+
+  // The clouds are canvases, and HTML-in-Canvas (glimm's page effect) can't copy a canvas
+  // inside the page: they're drawn behind glimm's scope instead, kept over the footer's
+  // place in the page as it scrolls. The scope is see-through there.
+  useEffect(() => {
+    const art = artRef.current, ground = document.querySelector<HTMLElement>('.ground'), scroller = document.querySelector('.scroll')
+    if (!art || !ground) return
+    let raf = 0
+    const place = () => {
+      raf = 0
+      const r = ground.getBoundingClientRect()
+      art.style.transform = `translate(${r.left}px, ${r.top}px)`
+      art.style.width = r.width + 'px'
+      art.style.height = r.height + 'px'
+    }
+    const soon = () => { if (!raf) raf = requestAnimationFrame(place) }
+    place()
+    scroller?.addEventListener('scroll', soon, { passive: true })
+    window.addEventListener('resize', soon)
+    const ro = new ResizeObserver(soon); ro.observe(ground)
+    return () => { cancelAnimationFrame(raf); scroller?.removeEventListener('scroll', soon); window.removeEventListener('resize', soon); ro.disconnect() }
+  }, [])
 
   // the time in São Paulo, where Grotesk is made ("3:29pm", as on euguerra.com)
   useEffect(() => {
@@ -162,9 +185,11 @@ export default function Landing() {
   }, [])
 
   return (
-    // glimm.dev's Publish demo: the whole page in one scope, the ember band in 2.7s
+    <>
+    <div ref={artRef} className="ground-art behind" aria-hidden="true" />
+    {/* glimm.dev's Publish demo: the whole page in one scope, its band down it in 2.7s */}
     <GlimmScope ref={scope} direction="ttb" sweepMs={2700} palette={PUBLISH} curve={0.12} span={1}
-      style={{ position: 'fixed', inset: 0 }}>
+      style={{ position: 'fixed', inset: 0, zIndex: 1 }}>
       <div className="scroll">
         <main className="page">
           <img className="mark rise" src="/moth.svg" alt="" width={60} height={38} />
@@ -207,7 +232,6 @@ export default function Landing() {
         </main>
 
         <footer className="ground">
-          <div className="ground-art" aria-hidden="true" />
           <div className="ground-bar">
             <p className="ground-line">
               <span><time ref={timeRef} id="sp-time" aria-label="Time in São Paulo">--:--</time> in São Paulo</span>
@@ -218,5 +242,6 @@ export default function Landing() {
         </footer>
       </div>
     </GlimmScope>
+    </>
   )
 }
